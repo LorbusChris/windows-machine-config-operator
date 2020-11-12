@@ -1,5 +1,14 @@
-package wellknownlocations
+package payload
 
+import (
+	"crypto/sha256"
+	"fmt"
+	"io/ioutil"
+
+	"github.com/pkg/errors"
+)
+
+// Payload files
 const (
 	// payloadDirectory is the directory in the operator image where are all the binaries live
 	payloadDirectory = "/payload/"
@@ -38,4 +47,27 @@ const (
 	// HybridOverlayPath contains the path of the hybrid overlay binary. The container image should already have this
 	// binary mounted
 	HybridOverlayPath = payloadDirectory + HybridOverlayName
+	// WindowsExporterName is the name of the Windows metrics exporter executable
+	WindowsExporterName = "windows_exporter.exe"
+	// WindowsExporterPath contains the path of the windows_exporter binary. The container image should already have
+	// this binary mounted
+	WindowsExporterPath = payloadDirectory + WindowsExporterName
 )
+
+// FileInfo contains information about a file
+type FileInfo struct {
+	Path   string
+	SHA256 string
+}
+
+// NewFileInfo returns a pointer to a FileInfo object created from the specified file
+func NewFileInfo(path string) (*FileInfo, error) {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not get contents of file")
+	}
+	return &FileInfo{
+		Path:   path,
+		SHA256: fmt.Sprintf("%x", sha256.Sum256(contents)),
+	}, nil
+}

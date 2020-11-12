@@ -27,9 +27,10 @@ export AWS_SHARED_CREDENTIALS_FILE=<path to aws credentials file>
 
 To run the operator on a cluster, use: 
 ```shell script
-hack/olm.sh run -c "<OPERATOR_IMAGE>"
+hack/olm.sh run -c "<OPERATOR_IMAGE>" -k "<PRIVATE_KEY.PEM>"
 ```
-This command builds the operator image and pushes it to remote repository. Executing [Build](#build) step is not required. 
+This command builds the operator image, pushes it to remote repository and uses OLM to launch the operator. Executing
+the [Build](#build) step is not required.
 
 In order to build the operator ignoring the existing build image cache, run the above command with the `-i` option.
 
@@ -57,9 +58,11 @@ Additional flags that can be passed to `hack/run-ci-e2e-test.sh` are
 
        
 Example command to spin up 2 Windows nodes and retain them after test run:
-```
+```shell script
 hack/run-ci-e2e-test.sh -s -n 2      
 ```
+
+Please note that you do not need to run `hack/olm.sh run` before `hack/run-ci-e2e-test.sh`.
 
 ## Bundling the Windows Machine Config Operator
 This directory contains resources related to installing the WMCO onto a cluster using OLM.
@@ -142,16 +145,20 @@ opm index rm --from-index $INDEX_REPOSITORY:$INDEX_TAG
 ```
 
 ## Updating Git submodules
-This project contains git submodules for four components:
-1. windows-machine-config-bootstrapper
-2. kubernetes has been pinned to a commit before go 1.15 became a requirement using the commands below. 
-    ```shell script
-    $ cd kubernetes
-    $ git checkout f5121a6a6a02ddfafd2bfbf5201b092dc5097ab0
-    ```
-    TODO: Check out to latest commit on release-4.6 in https://issues.redhat.com/browse/WINC-460
-3. ovn-kubernetes
-4. containernetworking-plugins
+This project contains git submodules for the following components:
+- windows-machine-config-bootstrapper
+- kubernetes\
+  Note that the kubernetes submodule has been pinned to a commit before go 1.15 became a requirement 
+  using the commands below.
+  ```shell script
+  $ cd kubernetes
+  $ git checkout f5121a6a6a02ddfafd2bfbf5201b092dc5097ab0
+  ```
+  TODO: Check out to latest commit on release-4.6 in https://issues.redhat.com/browse/WINC-460
+- ovn-kubernetes
+- containernetworking-plugins
+- promu
+- windows_exporter
 
 To update all git submodules use:
 ```shell script
